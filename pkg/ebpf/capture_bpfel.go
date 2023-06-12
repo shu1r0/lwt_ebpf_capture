@@ -54,7 +54,9 @@ type captureSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type captureProgramSpecs struct {
-	Capture *ebpf.ProgramSpec `ebpf:"capture"`
+	CaptureIn   *ebpf.ProgramSpec `ebpf:"capture_in"`
+	CaptureOut  *ebpf.ProgramSpec `ebpf:"capture_out"`
+	CaptureXmit *ebpf.ProgramSpec `ebpf:"capture_xmit"`
 }
 
 // captureMapSpecs contains maps before they are loaded into the kernel.
@@ -96,12 +98,16 @@ func (m *captureMaps) Close() error {
 //
 // It can be passed to loadCaptureObjects or ebpf.CollectionSpec.LoadAndAssign.
 type capturePrograms struct {
-	Capture *ebpf.Program `ebpf:"capture"`
+	CaptureIn   *ebpf.Program `ebpf:"capture_in"`
+	CaptureOut  *ebpf.Program `ebpf:"capture_out"`
+	CaptureXmit *ebpf.Program `ebpf:"capture_xmit"`
 }
 
 func (p *capturePrograms) Close() error {
 	return _CaptureClose(
-		p.Capture,
+		p.CaptureIn,
+		p.CaptureOut,
+		p.CaptureXmit,
 	)
 }
 

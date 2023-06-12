@@ -1,0 +1,60 @@
+# vm name 
+$name = "srv6-telemetry-dev"
+
+# ------------------------------------------------------------
+# Description
+# ------------------------------------------------------------
+$description = <<'EOS'
+
+user: vagrant
+password: vagrant
+EOS
+
+
+# ------------------------------------------------------------
+# VM config
+# ------------------------------------------------------------
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.hostname = $name
+  # config.vm.box = "bento/ubuntu-21.04"
+  config.vm.box = "ubuntu/jammy64"
+
+  config.vm.synced_folder "../", "/home/vagrant/share"
+
+  config.vm.provision "shell", path: "scripts/bootstrap.sh"
+  config.vm.provision "shell", path: "scripts/setup_bpf.sh"
+  config.vm.provision "shell", path: "scripts/setup_testpkg.sh"
+  config.vm.provision 'shell', inline: <<-SCRIPT
+      sudo apt install -y --no-install-recommends lubuntu-desktop
+  SCRIPT
+  config.vm.provision 'shell', inline: <<-SCRIPT
+      sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+      systemctl restart sshd
+  SCRIPT
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = $name
+    vb.gui = true
+    
+    vb.cpus = 2
+    vb.memory = "2048"
+
+    vb.customize [
+      "modifyvm", :id,
+      "--vram", "32", 
+      "--clipboard", "bidirectional", # clip board
+      "--draganddrop", "bidirectional", # drag and drop
+      "--ioapic", "on", # enable I/O APIC
+      '--graphicscontroller', 'vmsvga',
+      "--accelerate3d", "off",
+      "--hwvirtex", "on",
+      "--nestedpaging", "on",
+      "--largepages", "on",
+      "--pae", "on",
+      '--audio', 'none',
+      "--uartmode1", "disconnected",
+      "--description", $description
+    ]
+  end
+end

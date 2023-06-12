@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"flag"
 	"fmt"
 	"github.com/cilium/ebpf/perf"
 	"github.com/google/gopacket"
@@ -22,21 +23,41 @@ type perfEventItem struct {
 }
 
 func main() {
+	var (
+		dst_s = flag.String("dst", "2001:db8:20::2/128", "server ip address")
+		link  = flag.String("link", "r1_h2", "link")
+		hook  = flag.String("lwt_hook", "xmit", "in, out, xmit")
+	)
+	flag.Parse()
+
 	bpfDriver, err := cap.NewEBpfObjects(nil)
 	if err != nil {
 		panic(fmt.Errorf("Failed new driver: %v\n", err))
 	}
 
 	bpfEncap := netlink.BpfEncap{}
-	if err := bpfEncap.SetProg(nl.LWT_BPF_IN, bpfDriver.Capture.FD(), "lwt_in/capture"); err != nil {
-		panic(fmt.Errorf("set prog error : %s", err))
+
+	switch *hook {
+	case "in":
+		if err := bpfEncap.SetProg(nl.LWT_BPF_IN, bpfDriver.CaptureIn.FD(), "lwt_in/capture"); err != nil {
+			panic(fmt.Errorf("set prog error : %s", err))
+		}
+	case "xmit":
+		if err := bpfEncap.SetProg(nl.LWT_BPF_XMIT, bpfDriver.CaptureXmit.FD(), "lwt_xmit/capture"); err != nil {
+			panic(fmt.Errorf("set prog error : %s", err))
+		}
+	case "out":
+		if err := bpfEncap.SetProg(nl.LWT_BPF_OUT, bpfDriver.CaptureOut.FD(), "lwt_out/capture"); err != nil {
+			panic(fmt.Errorf("set prog error : %s", err))
+		}
+
 	}
 
-	_, dst, err := net.ParseCIDR("2001:db8:20::2/128")
+	_, dst, err := net.ParseCIDR(*dst_s)
 	if err != nil {
 		panic(fmt.Errorf("parse cidr error : %s", err))
 	}
-	oif, err := netlink.LinkByName("r1_h2")
+	oif, err := netlink.LinkByName(*link)
 	if err != nil {
 		panic(fmt.Errorf("link by name error : %s", err))
 	}

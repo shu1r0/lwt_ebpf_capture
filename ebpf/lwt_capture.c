@@ -40,9 +40,37 @@ static __always_inline long perf_event_packet(void *ctx, __u16 cookie, __u16 pkt
 }
 
 SEC("lwt_in/capture")
-int capture(struct __sk_buff *skb)
+int capture_in(struct __sk_buff *skb)
 {
-  bpf_trace("Enter packet");
+  bpf_trace("Enter packet on lwt_in");
+  void *data_end = (void *)(long)skb->data_end;
+  void *data = (void *)(long)skb->data;
+
+  __u16 cookie = 0xbeef;
+  __u16 pkt_len = data_end - data;
+  long r = perf_event_packet(skb, cookie, pkt_len);
+
+  return BPF_OK;
+}
+
+SEC("lwt_xmit/capture")
+int capture_xmit(struct __sk_buff *skb)
+{
+  bpf_trace("Enter packet on lwt_xmit");
+  void *data_end = (void *)(long)skb->data_end;
+  void *data = (void *)(long)skb->data;
+
+  __u16 cookie = 0xbeef;
+  __u16 pkt_len = data_end - data;
+  long r = perf_event_packet(skb, cookie, pkt_len);
+
+  return BPF_OK;
+}
+
+SEC("lwt_out/capture")
+int capture_out(struct __sk_buff *skb)
+{
+  bpf_trace("Enter packet on lwt_out");
   void *data_end = (void *)(long)skb->data_end;
   void *data = (void *)(long)skb->data;
 
