@@ -25,7 +25,6 @@ jobs:
       - name: prepare
         run: |
           sudo ./ubuntu-22-dev/scripts/setup_bpf.sh
-          # make proto
           sudo make build
       - name: run unit test
         run: |

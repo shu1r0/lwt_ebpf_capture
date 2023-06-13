@@ -5,7 +5,7 @@ CAPTURE_DIR="./cmd/lwt_capture/"
 
 build:
 	go mod tidy
-	go generate ./...
+	# go generate ./...
 	cd $(CAPTURE_DIR);go build main.go;chmod +x main;cd -
 
 test:
