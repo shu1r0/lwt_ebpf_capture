@@ -30,7 +30,7 @@ func main() {
 	)
 	flag.Parse()
 
-	bpfDriver, err := cap.NewEBpfObjects(nil)
+	bpfObj, err := cap.NewEBpfObjects(nil)
 	if err != nil {
 		panic(fmt.Errorf("Failed new driver: %v\n", err))
 	}
@@ -39,15 +39,15 @@ func main() {
 
 	switch *hook {
 	case "in":
-		if err := bpfEncap.SetProg(nl.LWT_BPF_IN, bpfDriver.CaptureIn.FD(), "lwt_in/capture"); err != nil {
+		if err := bpfEncap.SetProg(nl.LWT_BPF_IN, bpfObj.CaptureIn.FD(), "lwt_in/capture"); err != nil {
 			panic(fmt.Errorf("set prog error : %s", err))
 		}
 	case "xmit":
-		if err := bpfEncap.SetProg(nl.LWT_BPF_XMIT, bpfDriver.CaptureXmit.FD(), "lwt_xmit/capture"); err != nil {
+		if err := bpfEncap.SetProg(nl.LWT_BPF_XMIT, bpfObj.CaptureXmit.FD(), "lwt_xmit/capture"); err != nil {
 			panic(fmt.Errorf("set prog error : %s", err))
 		}
 	case "out":
-		if err := bpfEncap.SetProg(nl.LWT_BPF_OUT, bpfDriver.CaptureOut.FD(), "lwt_out/capture"); err != nil {
+		if err := bpfEncap.SetProg(nl.LWT_BPF_OUT, bpfObj.CaptureOut.FD(), "lwt_out/capture"); err != nil {
 			panic(fmt.Errorf("set prog error : %s", err))
 		}
 
@@ -68,7 +68,7 @@ func main() {
 		panic(fmt.Errorf("route add error : %s", err))
 	}
 
-	perfEvent, err := perf.NewReader(bpfDriver.PerfMap, 4096)
+	perfEvent, err := perf.NewReader(bpfObj.PerfMap, 4096)
 	if err != nil {
 		panic(fmt.Errorf("perf read error : %s", err))
 	}
