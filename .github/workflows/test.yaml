@@ -2,7 +2,7 @@ name: Run ping test
 on: [push]
 
 jobs:
-  pytest:
+  run_test_net:
     runs-on: ubuntu-22.04
 
     steps:
@@ -13,10 +13,6 @@ jobs:
         with:
           go-version: "1.18"
         id: go
-      # - name: Set up Python 3.10
-      #   uses: actions/setup-python@v2
-      #   with:
-      #     python-version: "3.10"
       - name: setup module
         run: |
           git submodule init
@@ -26,7 +22,7 @@ jobs:
         run: |
           sudo ./ubuntu-22-dev/scripts/setup_bpf.sh
           sudo make build
-      - name: run unit test
+      - name: run test network
         run: |
           cd test
           sudo ./test_ping.sh
