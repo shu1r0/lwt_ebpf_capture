@@ -1,4 +1,4 @@
-module github.com/shu1r0/lwt_in_ebpf_capture
+module github.com/shu1r0/lwt_ebpf_capture
 
 go 1.18
 

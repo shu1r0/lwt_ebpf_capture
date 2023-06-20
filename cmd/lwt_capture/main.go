@@ -9,7 +9,7 @@ import (
 	"github.com/cilium/ebpf/perf"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	cap "github.com/shu1r0/lwt_in_ebpf_capture/pkg/ebpf"
+	cap "github.com/shu1r0/lwt_ebpf_capture/pkg/ebpf"
 	"github.com/vishvananda/netlink"
 	"github.com/vishvananda/netlink/nl"
 	"net"
